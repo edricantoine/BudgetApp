@@ -8,14 +8,28 @@
 import SwiftUI
 
 struct ContentView: View {
+    func gotoSettings() {
+        print("Go to settings...")
+    }
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        HStack() {
+            Spacer()
+            Button("Settings",
+                   action: gotoSettings )
+            .padding([.trailing])
+            
         }
-        .padding()
+        VStack() {
+            Text("My Budget")
+                .font(.system(size: 32))
+                .padding([.bottom], 5)
+            HStack(spacing: 50) {
+                Text("Interval: 1 week")
+                Text("Remaining: $100")
+            }
+            Spacer()
+        }
+        
     }
 }
 
