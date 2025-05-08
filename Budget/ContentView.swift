@@ -8,9 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State private var showingPopup = false
+    @State private var showingErrorPopup = false
+    
     @State private var expenditures: [Expenditure] = [
-        Expenditure(id: 1, description: "Food @ McD's", amount: 15.05)
+        Expenditure(description: "Food @ McD's", amount: 15.05)
     ]
+    
+    @State private var newDesc = ""
+    @State private var newAmountStr = ""
     
     func gotoSettings() {
         print("Go to settings...")
@@ -34,6 +41,37 @@ struct ContentView: View {
                             Text("Remaining: $184.95").font(.title3)
                         }
                     }.padding(.top, 40)
+                }
+            }.safeAreaInset(edge: .bottom) {
+                Button("Add new expenditure") {
+                    showingPopup.toggle()
+                }.alert("Add new expenditure", isPresented: $showingPopup) {
+                    TextField("Description", text: $newDesc)
+                    TextField("Amount Spent", text: $newAmountStr)
+                    Button("Add") {
+                        var newAmount: Decimal = 0.0
+                        let formatter = NumberFormatter()
+                        formatter.locale = Locale(identifier: "en_US")
+                        formatter.numberStyle = .decimal
+                        
+                        if let number = formatter.number(from: newAmountStr) {
+                            newAmount = number.decimalValue
+                            let newExp = Expenditure( description: newDesc, amount: newAmount)
+                            
+                            expenditures.append(newExp)
+                        } else {
+                            showingErrorPopup.toggle()
+                        }
+                        newDesc = ""
+                        newAmountStr = ""
+                    }
+                    Button("Cancel") {
+                        
+                    }
+                }.alert("Please enter a valid decimal number.", isPresented: $showingErrorPopup) {
+                    Button("OK") {
+                        
+                    }
                 }
             }
         }

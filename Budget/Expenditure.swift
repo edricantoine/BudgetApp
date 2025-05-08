@@ -10,10 +10,9 @@ import Foundation
 class Expenditure {
     var description: String
     var amount: Decimal
-    var id: Int
+    var id = UUID()
     
-    init(id: Int, description: String, amount: Decimal) {
-        self.id = id
+    init(description: String, amount: Decimal) {
         self.description = description
         self.amount = amount
     }
