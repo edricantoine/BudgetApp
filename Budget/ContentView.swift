@@ -11,10 +11,10 @@ struct ContentView: View {
     
     @State private var showingPopup = false
     @State private var showingErrorPopup = false
+    @State private var showingResetPopup = false
     
-    @State private var expenditures: [Expenditure] = [
-        Expenditure(description: "Food @ McD's", amount: 15.05)
-    ]
+    
+    @State private var budgetState: BudgetState = BudgetState()
     
     @State private var newDesc = ""
     @State private var newAmountStr = ""
@@ -24,7 +24,7 @@ struct ContentView: View {
     }
     var body: some View {
         NavigationStack {
-            List(expenditures, id: \.id) { expenditure in
+            List(budgetState.expenditures, id: \.id) { expenditure in
                 HStack {
                     Text(expenditure.description)
                     Spacer()
@@ -43,34 +43,47 @@ struct ContentView: View {
                     }.padding(.top, 40)
                 }
             }.safeAreaInset(edge: .bottom) {
-                Button("Add new expenditure") {
-                    showingPopup.toggle()
-                }.alert("Add new expenditure", isPresented: $showingPopup) {
-                    TextField("Description", text: $newDesc)
-                    TextField("Amount Spent", text: $newAmountStr)
-                    Button("Add") {
-                        var newAmount: Decimal = 0.0
-                        let formatter = NumberFormatter()
-                        formatter.locale = Locale(identifier: "en_US")
-                        formatter.numberStyle = .decimal
-                        
-                        if let number = formatter.number(from: newAmountStr) {
-                            newAmount = number.decimalValue
-                            let newExp = Expenditure( description: newDesc, amount: newAmount)
+                VStack {
+                    Button("Add new expenditure") {
+                        showingPopup.toggle()
+                    }.alert("Add new expenditure", isPresented: $showingPopup) {
+                        TextField("Description", text: $newDesc)
+                        TextField("Amount Spent", text: $newAmountStr)
+                        Button("Add") {
+                            var newAmount: Decimal = 0.0
+                            let formatter = NumberFormatter()
+                            formatter.locale = Locale(identifier: "en_US")
+                            formatter.numberStyle = .decimal
                             
-                            expenditures.append(newExp)
-                        } else {
-                            showingErrorPopup.toggle()
+                            if let number = formatter.number(from: newAmountStr) {
+                                newAmount = number.decimalValue
+                                let newExp = Expenditure( description: newDesc, amount: newAmount)
+                                
+                                budgetState.expenditures.append(newExp)
+                            } else {
+                                showingErrorPopup.toggle()
+                            }
+                            newDesc = ""
+                            newAmountStr = ""
                         }
-                        newDesc = ""
-                        newAmountStr = ""
+                        Button("Cancel") {
+                            
+                        }
+                    }.alert("Please enter a valid decimal number.", isPresented: $showingErrorPopup) {
+                        Button("OK") {
+                            
+                        }
                     }
-                    Button("Cancel") {
-                        
-                    }
-                }.alert("Please enter a valid decimal number.", isPresented: $showingErrorPopup) {
-                    Button("OK") {
-                        
+                    // TODO: move this to settings page...
+                    Button("Reset budget") {
+                        showingResetPopup.toggle()
+                    }.padding(.top).tint(.red).alert("Are you sure you want to reset this budget?", isPresented: $showingResetPopup) {
+                        Button("Yes") {
+                            budgetState.expenditures = []
+                        }.tint(.red)
+                        Button("Cancel") {
+                            
+                        }
                     }
                 }
             }
