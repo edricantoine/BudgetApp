@@ -8,26 +8,34 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var expenditures: [Expenditure] = [
+        Expenditure(id: 1, description: "Food @ McD's", amount: 15.05)
+    ]
+    
     func gotoSettings() {
         print("Go to settings...")
     }
     var body: some View {
-        HStack() {
-            Spacer()
-            Button("Settings",
-                   action: gotoSettings )
-            .padding([.trailing])
-            
-        }
-        VStack() {
-            Text("My Budget")
-                .font(.system(size: 32))
-                .padding([.bottom], 5)
-            HStack(spacing: 50) {
-                Text("Interval: 1 week")
-                Text("Remaining: $100")
+        NavigationStack {
+            List(expenditures, id: \.id) { expenditure in
+                HStack {
+                    Text(expenditure.description)
+                    Spacer()
+                    Text("$\(expenditure.amount)")
+                    
+                }
+            }.toolbar {
+                ToolbarItem(placement: .principal) {
+                    VStack {
+                        Text("My Budget").font(.title).padding(.bottom, 10)
+                        HStack {
+                            Text("Spent: $15.05").font(.title3)
+                            Spacer()
+                            Text("Remaining: $184.95").font(.title3)
+                        }
+                    }.padding(.top, 40)
+                }
             }
-            Spacer()
         }
         
     }
