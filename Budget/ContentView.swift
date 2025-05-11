@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
+    
+    @Environment(\.modelContext) private var context
     
     @State private var showingPopup = false
     @State private var showingErrorPopup = false
@@ -26,7 +29,7 @@ struct ContentView: View {
         NavigationStack {
             List(budgetState.expenditures, id: \.id) { expenditure in
                 HStack {
-                    Text(expenditure.description)
+                    Text(expenditure.desc)
                     Spacer()
                     Text("$\(expenditure.amount)")
                     
@@ -60,6 +63,10 @@ struct ContentView: View {
                                 let newExp = Expenditure( description: newDesc, amount: newAmount)
                                 
                                 budgetState.expenditures.append(newExp)
+                                
+                                //TODO: fix deletion + re-insert here
+                                
+                                context.insert(budgetState)
                             } else {
                                 showingErrorPopup.toggle()
                             }
@@ -86,12 +93,19 @@ struct ContentView: View {
                         }
                     }
                 }
-            }
+            }.onAppear(perform: load)
         }
         
+    }
+    
+    func load() {
+        let req = FetchDescriptor<BudgetState>()
+        let data = try? context.fetch(req)
+        budgetState = data?.first ?? BudgetState()
     }
 }
 
 #Preview {
     ContentView()
+        .modelContainer(for: [BudgetState.self, Expenditure.self], inMemory: true)
 }

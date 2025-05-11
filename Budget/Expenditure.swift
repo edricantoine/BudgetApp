@@ -6,14 +6,16 @@
 //
 
 import Foundation
+import SwiftData
 
+@Model
 class Expenditure {
-    var description: String
+    var desc: String
     var amount: Decimal
     var id = UUID()
     
     init(description: String, amount: Decimal) {
-        self.description = description
+        self.desc = description
         self.amount = amount
     }
 }

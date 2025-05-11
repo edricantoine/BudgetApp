@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import SwiftData
 
+@Model
 class BudgetState {
     var limit: Decimal
     var spent: Decimal
