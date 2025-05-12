@@ -65,8 +65,14 @@ struct ContentView: View {
                                 budgetState.expenditures.append(newExp)
                                 
                                 //TODO: fix deletion + re-insert here
+                                do {
+                                    try context.save()
+                                } catch {
+                                    print("Could not save...")
+                                }
                                 
-                                context.insert(budgetState)
+                                
+                                //context.insert(budgetState)
                             } else {
                                 showingErrorPopup.toggle()
                             }
@@ -99,9 +105,13 @@ struct ContentView: View {
     }
     
     func load() {
-        let req = FetchDescriptor<BudgetState>()
-        let data = try? context.fetch(req)
-        budgetState = data?.first ?? BudgetState()
+        if let result = try! context.fetch(FetchDescriptor<BudgetState>()).first {
+                    budgetState = result
+                } else {
+                    let instance = BudgetState()
+                    context.insert(instance)
+                    budgetState = instance
+                }
     }
 }
 
