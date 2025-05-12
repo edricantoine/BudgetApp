@@ -93,6 +93,11 @@ struct ContentView: View {
                     }.padding(.top).tint(.red).alert("Are you sure you want to reset this budget?", isPresented: $showingResetPopup) {
                         Button("Yes") {
                             budgetState.expenditures = []
+                            do {
+                                try context.save()
+                            } catch {
+                                print("Could not save...")
+                            }
                         }.tint(.red)
                         Button("Cancel") {
                             
