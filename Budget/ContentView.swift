@@ -28,6 +28,42 @@ struct ContentView: View {
         print("Go to settings...")
     }
     var body: some View {
+        HStack {
+            Spacer()
+            Button("Options") {
+                showingModifyPopup.toggle()
+            }.padding(.trailing).alert("Edit budget limit. This will reset your current budget", isPresented: $showingModifyPopup) {
+                TextField("New Limit", text: $newLimitStr)
+                Button("Confirm") {
+                    var newLimit: Decimal = 0.0
+                    let formatter = NumberFormatter()
+                    formatter.locale = Locale(identifier: "en_US")
+                    formatter.numberStyle = .decimal
+                    
+                    if let number = formatter.number(from: newLimitStr) {
+                        newLimit = number.decimalValue
+                        budgetState.limit = newLimit
+                        budgetState.defaultLimit = newLimit
+                        budgetState.expenditures = []
+                        budgetState.spent = 0.0
+                        
+                        do {
+                            try context.save()
+                        } catch {
+                            print("Could not save...")
+                        }
+                        
+                    } else {
+                        showingErrorPopup.toggle()
+                    }
+                    
+                    newLimitStr = ""
+                }
+                Button("Cancel") {
+                    
+                }
+            }
+        }
         NavigationStack {
             List(budgetState.expenditures, id: \.id) { expenditure in
                 HStack {
@@ -36,56 +72,18 @@ struct ContentView: View {
                     Text("$\(expenditure.amount)")
                     
                 }
-            }.toolbar {
-                ToolbarItem() {
-                    VStack {
-                        HStack{
-                            Text("My Budget").font(.title).padding(.bottom, 10)
-                        }
+            }.scrollContentBackground(.hidden).toolbar {
+                ToolbarItem(placement: .principal) {
+                    VStack (spacing: 10) {
+                        Text("My Budget").font(.title).multilineTextAlignment(.center)
                         HStack {
-                            Text("Spent: $\(budgetState.spent)").font(.title3).padding(.trailing)
+                            Text("Spent: $\(budgetState.spent)").font(.title3)
                             Spacer()
-                            Text("Remaining: $\(budgetState.limit - budgetState.spent)").font(.title3).padding(.leading)
-                            
+                            Text("Remaining: $\(budgetState.limit - budgetState.spent)").font(.title3)
                         }
                     }.padding(.top, 40).padding(.bottom)
                 }
                 
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Edit") {
-                        showingModifyPopup.toggle()
-                    }.alert("Edit budget limit. This will reset your current budget", isPresented: $showingModifyPopup) {
-                        TextField("New Limit", text: $newLimitStr)
-                        Button("Confirm") {
-                            var newLimit: Decimal = 0.0
-                            let formatter = NumberFormatter()
-                            formatter.locale = Locale(identifier: "en_US")
-                            formatter.numberStyle = .decimal
-                            
-                            if let number = formatter.number(from: newLimitStr) {
-                                newLimit = number.decimalValue
-                                budgetState.limit = newLimit
-                                budgetState.defaultLimit = newLimit
-                                budgetState.expenditures = []
-                                budgetState.spent = 0.0
-                                
-                                do {
-                                    try context.save()
-                                } catch {
-                                    print("Could not save...")
-                                }
-                                
-                            } else {
-                                showingErrorPopup.toggle()
-                            }
-                            
-                            newLimitStr = ""
-                        }
-                        Button("Cancel") {
-                            
-                        }
-                    }
-                }
             }.safeAreaInset(edge: .bottom) {
                 VStack {
                     Button("Add new expenditure") {
